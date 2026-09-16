@@ -8,29 +8,36 @@ import { env } from "@/config/env.js";
 
 const client = new MongoClient(env.MONGODB_URI);
 const db = client.db(env.MONGODB_DB_NAME);
-
 export const auth = betterAuth({
-	appName: "SP Traders",
+  appName: "SP Traders",
 
-	baseURL: env.BETTER_AUTH_URL,
+  baseURL: env.BETTER_AUTH_URL,
 
-	secret: env.BETTER_AUTH_SECRET,
+  secret: env.BETTER_AUTH_SECRET,
 
-	trustedOrigins: env.corsOrigins,
+  trustedOrigins: env.corsOrigins,
 
-	database: mongodbAdapter(db),
+  database: mongodbAdapter(db),
 
-	emailAndPassword: {
-		enabled: true,
-	},
+  emailAndPassword: {
+    enabled: true,
+  },
 
-	plugins: [
-		admin({
-			defaultRole: "user",
-			adminRoles: ["admin"],
-			adminUserIds: env.adminUserIds,
-		}),
-	],
+  advanced: {
+    defaultCookieAttributes: {
+      sameSite: "none",
+      secure: true,
+      partitioned: true, // helps with Chrome's newer CHIPS enforcement
+    },
+  },
+
+  plugins: [
+    admin({
+      defaultRole: "user",
+      adminRoles: ["admin"],
+      adminUserIds: env.adminUserIds,
+    }),
+  ],
 });
 
 export type AuthSession = typeof auth.$Infer.Session;
